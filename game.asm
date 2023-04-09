@@ -4233,6 +4233,7 @@ at_peak_jump:		li $t7, 1
 			syscall
 			
 move_player:		move $t4, $a0				# 0 = left, 1 = up, 2 = right, 3 = down
+			li $t1, GROUND_COLOR
 			li $t2, BG_COLOR
 			beq $t4, $zero, move_left
 			beq $t4, 1, move_up
@@ -4243,17 +4244,29 @@ move_down:		sw $t2, 0($t0)
 			addi $t0, $t0, 256
             		j draw_player
             
-move_left:		sw $t2, 4($t0)
+move_left:		lw $t6, -4($t0)
+			beq $t6, $t1, draw_player
+			lw $t6, 252($t0)
+			beq $t6, $t1, draw_player
+			sw $t2, 4($t0)
 			sw $t2, 260($t0)
 			addi $t0, $t0, -4
 			j draw_player
 
-move_up:		sw $t2, 256($t0)
+move_up:		lw $t6, -256($t0)
+			beq $t6, $t1, draw_player
+			lw $t6, -252($t0)
+			beq $t6, $t1, draw_player
+			sw $t2, 256($t0)
 			sw $t2, 260($t0)
 			addi $t0, $t0, -256
 			j draw_player
 
-move_right:		sw $t2, 0($t0)
+move_right:		lw $t6, 8($t0)
+			beq $t6, $t1, draw_player
+			lw $t6, 264($t0)
+			beq $t6, $t1, draw_player
+			sw $t2, 0($t0)
 			sw $t2, 256($t0)
 			addi $t0, $t0, 4
 
