@@ -25,7 +25,9 @@
 .eqv    LVL_1_START	11292
 .eqv    LVL_2_START	1552
 .eqv    LVL_3_START     10000
-.eqv 	HEALTH_OFFSET	14056	
+.eqv 	HEALTH_OFFSET	14056
+.eqv    SPEAR_START     8948
+.eqv    MAX_SPEAR_WAIT  20	
 
 .data	
 jump_left:		.byte	12
@@ -33,6 +35,8 @@ can_jump_again:		.byte 	1
 level:                  .byte   1
 health:			.byte	3
 game_over:		.byte	0
+spear_cooldown:         .byte   20
+
 
 .text
 
@@ -43,6 +47,8 @@ main: 			li $v0 32
 			syscall
 				                 				
 			li $t7, 1
+                        li $s2, BASE_ADDRESS
+                        addi $s2, $s2, SPEAR_START
 			
 			jal start_lvl
 			
@@ -52,8 +58,11 @@ game_loop:		li $v0 32
 			
                         la $s1, game_over
                         lb $s1, 0($s1)
+                        la $t1, level
+                        lb $t1, 0($t1)
                         beq $s1, 1, check_keypress
-			beq $t7, 2, jumping 
+                        beq $t1, 3, spear_logic
+check_jumping:		beq $t7, 2, jumping 
 			
 check_falling:		lw $t6, 512($t0)			# check if pixel below is ground
 			li $t8, GROUND_COLOR
@@ -100,6 +109,10 @@ p_pressed:		la $t1, jump_left
 			
 			la $t1, game_over
 			li $t2, 0
+			sb $t2, 0($t1)
+
+                        la $t1, spear_cooldown
+			li $t2, 20
 			sb $t2, 0($t1)
 			j main
 			
@@ -225,8 +238,8 @@ draw_player: 		li $t1, RED
 			li $t2, BG_COLOR
 			li $t3, GREEN
 			sw $t1, 0($t0)
-			sw $t3, 4($t0)
-			sw $t3, 256($t0)
+			sw $t1, 4($t0)
+			sw $t1, 256($t0)
 			sw $t1, 260($t0)
 			jr $ra
 			
@@ -251,6 +264,36 @@ game_lost:		jal draw_game_lost
                         li $t2, 1
                         sb $t2, 0($t1)
                         j game_loop
+
+spear_logic:            la $t5, spear_cooldown
+                        lb $t2, 0($t5)
+                        beq $t2, $zero, draw_spear
+                        addi $t2, $t2, -1
+                        sb $t2, 0($t5)
+                        j check_jumping
+
+draw_spear:             li $t1, SPIKE_COLOR
+                        li $t3, BG_COLOR
+                        li $t4, RED
+                        li $t5, GROUND_COLOR
+                        addi $s2, $s2, -4
+                        lw $t9, 0($s2)
+                        
+                        beq $t9, $t4, hurt
+                        beq $t9, $t5, hide_spear
+                        sw $t1, 0($s2)
+                        sw $t1, 4($s2)
+                        sw $t3, 8($s2)
+                        j check_jumping
+
+hide_spear:             sw $t3, 4($s2)
+                        sw $t3, 8($s2)
+                        la $t2, spear_cooldown
+                        li $t1, MAX_SPEAR_WAIT
+                        sb $t1, 0($t2)
+                        li $s2, BASE_ADDRESS
+                        addi $s2, $s2, SPEAR_START
+                        j check_jumping
 
 start_lvl:              la $t1, level
                         lb $t1, 0($t1)
