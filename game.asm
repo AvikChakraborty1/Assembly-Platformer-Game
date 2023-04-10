@@ -3,7 +3,7 @@
 # CSCB58 Winter 2023 Assembly Final Project
 # University of Toronto, Scarborough
 #
-# Student: Avik Chakraborty, 1007067745, chakr205
+# Student: Avik Chakraborty, 1007067745, chakr205, avik.chakraborty@mail.utoronto.ca
 #
 # Bitmap Display Configuration:
 # - Unit width in pixels: 8
@@ -12,6 +12,27 @@
 # - Display height in pixels: 512
 # - Base Address for Display: 0x10008000 ($gp)
 #
+# Which milestones have been reached in this submission?
+# - Milestone 3 
+#
+# Which approved features have been implemented for milestone 3?
+# 1. Health/score
+# 2. Fail condition
+# 3. Win condition
+# 4. Moving objects
+# 5. Different levels
+# 6. Double jump
+#
+# Link to video demonstration for final submission:
+# - https://youtu.be/2lk3R_btA34
+#
+# Are you OK with us sharing the video with people outside course staff?
+# - no 
+#
+# Any additional information that the TA needs to know:
+# - none
+#
+#####################################################################
 
 .eqv	BASE_ADDRESS	0x10008000	#Base address value
 .eqv	RED	        0xff0000	
@@ -26,7 +47,7 @@
 .eqv    LVL_2_START	1552
 .eqv    LVL_3_START     10000
 .eqv 	HEALTH_OFFSET	14056
-.eqv    SPEAR_START     8948
+.eqv    SPEAR_START     8944
 .eqv    MAX_SPEAR_WAIT  20	
 
 .data	
@@ -283,11 +304,13 @@ draw_spear:             li $t1, SPIKE_COLOR
                         beq $t9, $t5, hide_spear
                         sw $t1, 0($s2)
                         sw $t1, 4($s2)
-                        sw $t3, 8($s2)
+                        sw $t1, 8($s2)
+                        sw $t3, 12($s2)
                         j check_jumping
 
 hide_spear:             sw $t3, 4($s2)
                         sw $t3, 8($s2)
+                        sw $t3, 12($s2)
                         la $t2, spear_cooldown
                         li $t1, MAX_SPEAR_WAIT
                         sb $t1, 0($t2)
