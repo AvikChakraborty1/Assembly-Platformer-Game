@@ -108,7 +108,6 @@ keypress_happened:	lw $t4 4($t3)
 			beq $t4 0x77 w_pressed
 			beq $t4 0x61 a_pressed
 			beq $t4 0x64 d_pressed
-			beq $t4 0x73 s_pressed
 			beq $t4 0x70 p_pressed
 			j game_loop
 
@@ -144,11 +143,6 @@ a_pressed:		beq $s1, 1, game_loop
 			
 d_pressed:		beq $s1, 1, game_loop
                         li $a0, 2
-			jal move_player
-			j game_loop
-			
-s_pressed:		beq $s1, 1, game_loop
-                        li $a0, 3
 			jal move_player
 			j game_loop
 		
